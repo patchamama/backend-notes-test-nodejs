@@ -16,9 +16,11 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
+//midleware para que express pueda servir archivos estaticos
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
+app.use(express.static('dist'));
 
 let notes = [
   {
