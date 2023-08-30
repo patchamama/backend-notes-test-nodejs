@@ -49,7 +49,7 @@ app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>');
 });
 
-app.get('/api/notes', (request, response) => {
+app.get('/api/notes', (request, response, next) => {
   Note.find({}).then((notes) => {
     response.json(notes);
   });
@@ -64,7 +64,7 @@ app.get('/api/notes', (request, response) => {
 //   return maxId + 1;
 // };
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const body = request.body;
 
   if (body.content === undefined) {
@@ -77,9 +77,13 @@ app.post('/api/notes', (request, response) => {
     date: new Date(),
   });
 
-  note.save().then((savedNote) => {
-    response.json(savedNote);
-  });
+  note
+    .save()
+    .then((savedNote) => savedNote.toJSON())
+    .then((savedAndFormattedNote) => {
+      response.json(savedAndFormattedNote);
+    })
+    .catch((error) => next(error));
 });
 
 // app.post('/api/notes', (request, response) => {
@@ -103,7 +107,7 @@ app.post('/api/notes', (request, response) => {
 //   response.json(note);
 // });
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/notes/:id', (request, response, next) => {
   Note.findById(request.params.id)
     .then((note) => {
       if (note) {
@@ -163,18 +167,21 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 app.use(unknownEndpoint);
+
 // Error handling in middleware
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
   }
   next(error);
 };
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
