@@ -35,12 +35,3 @@ Note.find({}).then((result) => {
   });
   mongoose.connection.close();
 });
-
-// note.save().then((result) => {
-//   console.log('note saved!');
-//   mongoose.connection.close();
-// });
-
-// mandy_phonebook
-// T0pb3QiCPxUCeFdd
-// mongodb+srv://mandy_phonebook:T0pb3QiCPxUCeFdd@cluster0.za4sftc.mongodb.net/phonebook?retryWrites=true&w=majority
